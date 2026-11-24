@@ -143,7 +143,7 @@
       align-items: center;
       justify-content: center;
       pointer-events: all;
-      transition: opacity 0.45s ease, visibility 0.45s ease;
+      transition: opacity 1.75s ease, visibility 1.75s ease;
     }
 
     .preloader.is-hidden {
@@ -158,7 +158,7 @@
       width: 100%;
       height: 50%;
       background: #06080d;
-      transition: transform 2.5s var(--transition-smooth);
+      transition: transform 1.75s var(--transition-smooth);
       z-index: 1;
     }
 
@@ -185,12 +185,12 @@
       z-index: 2;
       text-align: center;
       padding: 0 20px;
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      transition: opacity 1.75s ease, transform 1.75s ease;
     }
 
     .preloader.is-splitting .preloader-core {
       opacity: 0;
-      transform: scale(0.94);
+      transform: scale(1.75);
     }
 
     .preloader-brand {
@@ -1800,54 +1800,54 @@
     // প্রিলোডার অ্যানিমেশন ও মডাল ইভেন্ট লিসেনার
     // =========================================================================
     function initPreloader() {
-      const preloader = document.getElementById("preloader");
-      const fill = document.getElementById("preloaderFill");
-      const status = document.getElementById("preloaderStatus");
-      if (!preloader) return;
+  const preloader = document.getElementById("preloader");
+  const fill = document.getElementById("preloaderFill");
+  const status = document.getElementById("preloaderStatus");
+  if (!preloader) return;
 
-      let progress = 0;
-      const timer = setInterval(() => {
-        progress += 25;
-        if (fill) fill.style.width = Math.min(progress, 100) + "%";
-        if (progress >= 75 && status) {
-          status.textContent = "Loading HEXA BENZENE...";
-        }
-        if (progress >= 100) {
-          clearInterval(timer);
-          setTimeout(() => {
-            preloader.classList.add("is-splitting");
-            setTimeout(() => {
-              preloader.classList.add("is-hidden");
-            }, 780);
-          }, 140);
-        }
-      }, 90);
+  let progress = 0;
+  const timer = setInterval(() => {
+    progress += 15; // প্রতি ধাপে ১৫% করে বাড়বে (আগে ২৫% ছিল)
+    if (fill) fill.style.width = Math.min(progress, 100) + "%";
+    if (progress >= 75 && status) {
+      status.textContent = "Loading HEXA BENZENE...";
     }
+    if (progress >= 100) {
+      clearInterval(timer);
+      setTimeout(() => {
+        preloader.classList.add("is-splitting");
+        setTimeout(() => {
+          preloader.classList.add("is-hidden");
+        }, 1750); // CSS-এর 1.75s ট্রানজিশনের সাথে মিল রেখে
+      }, 300); // ১০০% হওয়ার পর স্প্লিট শুরু হওয়ার বিরতি
+    }
+  }, 220); // প্রতিটি ধাপের মাঝের সময় (আগে ৯০ms ছিল)
+}
 
-    if (modalCloseBtn) {
-      modalCloseBtn.addEventListener("click", closeLeaderModal);
+if (modalCloseBtn) {
+  modalCloseBtn.addEventListener("click", closeLeaderModal);
+}
+if (modalBackdrop) {
+  modalBackdrop.addEventListener("click", (event) => {
+    if (event.target === modalBackdrop) {
+      closeLeaderModal();
     }
-    if (modalBackdrop) {
-      modalBackdrop.addEventListener("click", (event) => {
-        if (event.target === modalBackdrop) {
-          closeLeaderModal();
-        }
-      });
-    }
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeLeaderModal();
-      }
-    });
+  });
+}
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeLeaderModal();
+  }
+});
 
-    // সব সেকশন চালু করা
-    renderMarquee();
-    renderSlotBooking();
-    renderLeaderboardLink();
-    renderLeadership();
-    renderTeamAndPlayers();
-    renderSocials();
-    initPreloader();
+// সব সেকশন চালু করা
+renderMarquee();
+renderSlotBooking();
+renderLeaderboardLink();
+renderLeadership();
+renderTeamAndPlayers();
+renderSocials();
+initPreloader();
   </script>
 </body>
   </html>
