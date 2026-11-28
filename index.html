@@ -857,7 +857,7 @@
       color: var(--accent-cyan);
     }
 
-    /* টিম ও প্লেয়ার কার্ড স্টাইল */
+    /* টিম ও প্লেয়ার কার্ড এবং ব্যানার ক্যারোজেল স্টাইল */
     .team-banner-card {
       display: grid;
       grid-template-columns: 1fr;
@@ -876,12 +876,59 @@
       }
     }
 
-    .team-banner-img {
+    .team-banner-slider {
+      position: relative;
       width: 100%;
       height: 190px;
-      object-fit: cover;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-strong);
+      overflow: hidden;
+      background: var(--bg-elevated);
+    }
+
+    .team-banner-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.65s var(--transition-smooth);
+      will-change: transform;
+    }
+
+    .team-banner-slide {
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .slider-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(5, 5, 8, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 2;
+    }
+
+    .slider-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    .slider-dot.active {
+      width: 18px;
+      border-radius: 999px;
+      background: var(--accent-cyan);
     }
 
     .team-name-heading {
@@ -968,53 +1015,36 @@
       overflow-wrap: anywhere;
     }
 
-    /* সোশ্যাল মিডিয়া লিংক স্টাইল */
+    /* সোশ্যাল মিডিয়া লোগো স্টাইল */
     .social-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    @media (min-width: 600px) {
-      .social-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (min-width: 960px) {
-      .social-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
     }
 
     .social-card {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 16px 18px;
-      border-radius: var(--radius-md);
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      transition: transform 0.25s var(--transition-smooth), border-color 0.25s ease;
-      min-width: 0;
+      color: var(--text-primary);
+      transition: transform 0.25s var(--transition-smooth), border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
     .social-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(34, 211, 238, 0.45);
+      transform: translateY(-4px);
+      border-color: var(--accent-cyan);
+      box-shadow: var(--glow-cyan);
     }
 
-    .social-title {
-      font-weight: 700;
-      font-size: 0.96rem;
-      overflow-wrap: anywhere;
-    }
-
-    .social-sub {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      overflow-wrap: anywhere;
+    .social-card svg {
+      width: 28px;
+      height: 28px;
     }
 
     /* ফুটার স্টাইল */
@@ -1112,37 +1142,6 @@
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-subtle);
-    }
-    /* সোশ্যাল মিডিয়া লোগো স্টাইল */
-    .social-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 18px;
-    }
-
-    .social-card {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-primary);
-      transition: transform 0.25s var(--transition-smooth), border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .social-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent-cyan);
-      box-shadow: var(--glow-cyan);
-    }
-
-    .social-card svg {
-      width: 28px;
-      height: 28px;
     }
   </style>
 </head>
@@ -1291,12 +1290,10 @@
           </div>
 
           <div class="team-banner-card">
-            <img
-              id="teamBannerImg"
-              src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80"
-              alt="HEXA BENZENE Team Roster"
-              class="team-banner-img"
-            />
+            <div class="team-banner-slider" id="teamBannerSlider">
+              <div class="team-banner-track" id="teamBannerTrack"></div>
+              <div class="slider-dots" id="sliderDots"></div>
+            </div>
             <div>
               <h3 id="teamDisplayName" class="team-name-heading">HEXA BENZENE MAIN ROSTER</h3>
               <p id="teamDisplayDesc" class="section-desc">
@@ -1358,7 +1355,12 @@
     const ORG_CONFIG = {
       orgName: "HEXA BENZENE",
       teamName: "HEXA BENZENE MAIN ROSTER",
-      teamBannerImage: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+      // ব্যানার স্লাইডারের ছবিগুলো এখানে কমা দিয়ে একের পর এক যোগ করবেন
+      teamBannerImages: [
+        "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+        "https://i.imgur.com/OOh6yGb.jpeg",
+        "https://i.imgur.com/chyBkVO.jpeg"
+      ],
       teamDescription: "Competitive lineup representing Barisal, Madaripur, and Comilla with disciplined endgame rotations and coordinated pushes.",
       regions: ["Barisal", "Madaripur", "Comilla"],
 
@@ -1388,8 +1390,8 @@
         "HEXA BENZENE",
         "BARISAL • MADARIPUR • COMILLA",
         "SLOT BOOKING OPEN ON WHATSAPP",
-        "OFFICIAL LEADERBOARD LIVE", 
-        "MD SIAM JAMADDER", 
+        "OFFICIAL LEADERBOARD LIVE",
+        "MD SIAM JAMADDER",
         "HOSSAIN TANIM"
       ],
 
@@ -1486,14 +1488,14 @@
           region: "Cumilla",
           details: "Holds high ground, applies long-range pressure, and secures clutch survival.",
           photo: "https://i.imgur.com/y3DcCd0.png"
-        }, 
+        },
         {
           name: "HB VENOM_JR — All-rounder ",
           role: "IGL + All-rounder ",
           region: "Barishal",
           details: "Rusher+supporter+Sniper.",
           photo: "https://i.imgur.com/R3e9tdr.jpeg"
-        }, 
+        },
         {
           name: "HB ADARSHA",
           role: "Sniper + Rusher",
@@ -1720,20 +1722,78 @@
     }
 
     // =========================================================================
-    // প্লেয়ার ও টিম মেম্বারদের কার্ড রেন্ডার করার ফাংশন (ছবির পাশে ডিটেইলস)
+    // ব্যানার ক্যারোজেল / স্লাইডার ও প্লেয়ার কার্ড রেন্ডার ফাংশন
     // =========================================================================
     function renderTeamAndPlayers() {
-      const bannerImg = document.getElementById("teamBannerImg");
+      const track = document.getElementById("teamBannerTrack");
+      const dotsContainer = document.getElementById("sliderDots");
+      const sliderBox = document.getElementById("teamBannerSlider");
       const teamNameEl = document.getElementById("teamDisplayName");
       const teamDescEl = document.getElementById("teamDisplayDesc");
       const playersGrid = document.getElementById("playersGrid");
 
-      if (bannerImg) {
-        bannerImg.src = ORG_CONFIG.teamBannerImage;
-        bannerImg.alt = ORG_CONFIG.teamName;
-      }
       if (teamNameEl) teamNameEl.textContent = ORG_CONFIG.teamName;
       if (teamDescEl) teamDescEl.textContent = ORG_CONFIG.teamDescription;
+
+      const bannerList =
+        Array.isArray(ORG_CONFIG.teamBannerImages) && ORG_CONFIG.teamBannerImages.length > 0
+          ? ORG_CONFIG.teamBannerImages
+          : (ORG_CONFIG.teamBannerImage ? [ORG_CONFIG.teamBannerImage] : []);
+
+      if (track && dotsContainer && bannerList.length > 0) {
+        track.innerHTML = "";
+        dotsContainer.innerHTML = "";
+
+        let currentSlide = 0;
+        let slideInterval = null;
+
+        bannerList.forEach((imgUrl, index) => {
+          const slideImg = document.createElement("img");
+          slideImg.src = imgUrl;
+          slideImg.alt = ORG_CONFIG.teamName + " Slide " + (index + 1);
+          slideImg.className = "team-banner-slide";
+          track.appendChild(slideImg);
+
+          const dotBtn = document.createElement("button");
+          dotBtn.type = "button";
+          dotBtn.className = index === 0 ? "slider-dot active" : "slider-dot";
+          dotBtn.setAttribute("aria-label", "Go to slide " + (index + 1));
+          dotBtn.addEventListener("click", () => {
+            setSlide(index);
+            resetTimer();
+          });
+          dotsContainer.appendChild(dotBtn);
+        });
+
+        const dotEls = dotsContainer.querySelectorAll(".slider-dot");
+
+        function setSlide(idx) {
+          currentSlide = (idx + bannerList.length) % bannerList.length;
+          track.style.transform = `translateX(-${currentSlide * 100}%)`;
+          dotEls.forEach((d, i) => {
+            d.classList.toggle("active", i === currentSlide);
+          });
+        }
+
+        function startTimer() {
+          if (bannerList.length <= 1) return;
+          slideInterval = setInterval(() => {
+            setSlide(currentSlide + 1);
+          }, 3200);
+        }
+
+        function resetTimer() {
+          clearInterval(slideInterval);
+          startTimer();
+        }
+
+        if (sliderBox) {
+          sliderBox.addEventListener("mouseenter", () => clearInterval(slideInterval));
+          sliderBox.addEventListener("mouseleave", startTimer);
+        }
+
+        startTimer();
+      }
 
       if (!playersGrid) return;
       playersGrid.innerHTML = "";
@@ -1866,7 +1926,7 @@
 
       let progress = 0;
       const timer = setInterval(() => {
-        progress += 15; // প্রতি ধাপে ১৫% করে বাড়বে (আগে ২৫% ছিল)
+        progress += 15;
         if (fill) fill.style.width = Math.min(progress, 100) + "%";
         if (progress >= 75 && status) {
           status.textContent = "Loading HEXA BENZENE...";
@@ -1877,10 +1937,10 @@
             preloader.classList.add("is-splitting");
             setTimeout(() => {
               preloader.classList.add("is-hidden");
-            }, 1750); // CSS-এর 1.75s ট্রানজিশনের সাথে মিল রেখে
-          }, 300); // ১০০% হওয়ার পর স্প্লিট শুরু হওয়ার বিরতি
+            }, 1750);
+          }, 300);
         }
-      }, 220); // প্রতিটি ধাপের মাঝের সময় (আগে ৯০ms ছিল)
+      }, 220);
     }
 
     if (modalCloseBtn) {
