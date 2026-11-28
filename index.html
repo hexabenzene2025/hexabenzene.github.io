@@ -857,7 +857,7 @@
       color: var(--accent-cyan);
     }
 
-    /* টিম ও প্লেয়ার কার্ড এবং ব্যানার ক্যারোজেল স্টাইল */
+    /* টিম ও প্লেয়ার কার্ড এবং স্মুথ ফেড ব্যানার স্টাইল */
     .team-banner-card {
       display: grid;
       grid-template-columns: 1fr;
@@ -886,49 +886,23 @@
       background: var(--bg-elevated);
     }
 
-    .team-banner-track {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.65s var(--transition-smooth);
-      will-change: transform;
-    }
-
     .team-banner-slide {
-      min-width: 100%;
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      flex-shrink: 0;
+      opacity: 0;
+      transform: scale(1.04);
+      transition: opacity 0.9s ease, transform 1.2s var(--transition-smooth);
+      pointer-events: none;
     }
 
-    .slider-dots {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(5, 5, 8, 0.65);
-      backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-
-    .slider-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.35);
-      transition: width 0.3s ease, background 0.3s ease;
-    }
-
-    .slider-dot.active {
-      width: 18px;
-      border-radius: 999px;
-      background: var(--accent-cyan);
+    .team-banner-slide.is-active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      z-index: 1;
     }
 
     .team-name-heading {
@@ -1290,10 +1264,7 @@
           </div>
 
           <div class="team-banner-card">
-            <div class="team-banner-slider" id="teamBannerSlider">
-              <div class="team-banner-track" id="teamBannerTrack"></div>
-              <div class="slider-dots" id="sliderDots"></div>
-            </div>
+            <div class="team-banner-slider" id="teamBannerSlider"></div>
             <div>
               <h3 id="teamDisplayName" class="team-name-heading">HEXA BENZENE MAIN ROSTER</h3>
               <p id="teamDisplayDesc" class="section-desc">
@@ -1355,12 +1326,14 @@
     const ORG_CONFIG = {
       orgName: "HEXA BENZENE",
       teamName: "HEXA BENZENE MAIN ROSTER",
-      // ব্যানার স্লাইডারের ছবিগুলো এখানে কমা দিয়ে একের পর এক যোগ করবেন
+      // ব্যানারের ছবিগুলো এখানে কমা দিয়ে একের পর এক যোগ করবেন (অটোমেটিক ফেড অ্যানিমেশনে চলবে)
       teamBannerImages: [
         "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
         "https://i.imgur.com/OOh6yGb.jpeg",
         "https://i.imgur.com/chyBkVO.jpeg"
       ],
+      // প্রতি স্লাইড কত মিলিসেকেন্ড পর বদলাবে (3000 = ৩ সেকেন্ড)
+      bannerSlideIntervalMs: 3000,
       teamDescription: "Competitive lineup representing Barisal, Madaripur, and Comilla with disciplined endgame rotations and coordinated pushes.",
       regions: ["Barisal", "Madaripur", "Comilla"],
 
@@ -1722,11 +1695,9 @@
     }
 
     // =========================================================================
-    // ব্যানার ক্যারোজেল / স্লাইডার ও প্লেয়ার কার্ড রেন্ডার ফাংশন
+    // অটোমেটিক ফেড ব্যানার অ্যানিমেশন ও প্লেয়ার কার্ড রেন্ডার ফাংশন
     // =========================================================================
     function renderTeamAndPlayers() {
-      const track = document.getElementById("teamBannerTrack");
-      const dotsContainer = document.getElementById("sliderDots");
       const sliderBox = document.getElementById("teamBannerSlider");
       const teamNameEl = document.getElementById("teamDisplayName");
       const teamDescEl = document.getElementById("teamDisplayDesc");
@@ -1740,59 +1711,27 @@
           ? ORG_CONFIG.teamBannerImages
           : (ORG_CONFIG.teamBannerImage ? [ORG_CONFIG.teamBannerImage] : []);
 
-      if (track && dotsContainer && bannerList.length > 0) {
-        track.innerHTML = "";
-        dotsContainer.innerHTML = "";
+      if (sliderBox && bannerList.length > 0) {
+        sliderBox.innerHTML = "";
+        let activeIndex = 0;
 
-        let currentSlide = 0;
-        let slideInterval = null;
-
-        bannerList.forEach((imgUrl, index) => {
+        const slideElements = bannerList.map((imgUrl, idx) => {
           const slideImg = document.createElement("img");
           slideImg.src = imgUrl;
-          slideImg.alt = ORG_CONFIG.teamName + " Slide " + (index + 1);
-          slideImg.className = "team-banner-slide";
-          track.appendChild(slideImg);
-
-          const dotBtn = document.createElement("button");
-          dotBtn.type = "button";
-          dotBtn.className = index === 0 ? "slider-dot active" : "slider-dot";
-          dotBtn.setAttribute("aria-label", "Go to slide " + (index + 1));
-          dotBtn.addEventListener("click", () => {
-            setSlide(index);
-            resetTimer();
-          });
-          dotsContainer.appendChild(dotBtn);
+          slideImg.alt = ORG_CONFIG.teamName + " Banner " + (idx + 1);
+          slideImg.className = idx === 0 ? "team-banner-slide is-active" : "team-banner-slide";
+          sliderBox.appendChild(slideImg);
+          return slideImg;
         });
 
-        const dotEls = dotsContainer.querySelectorAll(".slider-dot");
-
-        function setSlide(idx) {
-          currentSlide = (idx + bannerList.length) % bannerList.length;
-          track.style.transform = `translateX(-${currentSlide * 100}%)`;
-          dotEls.forEach((d, i) => {
-            d.classList.toggle("active", i === currentSlide);
-          });
+        if (slideElements.length > 1) {
+          const intervalTime = Number(ORG_CONFIG.bannerSlideIntervalMs) || 3000;
+          setInterval(() => {
+            slideElements[activeIndex].classList.remove("is-active");
+            activeIndex = (activeIndex + 1) % slideElements.length;
+            slideElements[activeIndex].classList.add("is-active");
+          }, intervalTime);
         }
-
-        function startTimer() {
-          if (bannerList.length <= 1) return;
-          slideInterval = setInterval(() => {
-            setSlide(currentSlide + 1);
-          }, 3200);
-        }
-
-        function resetTimer() {
-          clearInterval(slideInterval);
-          startTimer();
-        }
-
-        if (sliderBox) {
-          sliderBox.addEventListener("mouseenter", () => clearInterval(slideInterval));
-          sliderBox.addEventListener("mouseleave", startTimer);
-        }
-
-        startTimer();
       }
 
       if (!playersGrid) return;
