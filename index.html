@@ -1697,90 +1697,89 @@
     // =========================================================================
     // অটোমেটিক ফেড ব্যানার অ্যানিমেশন ও প্লেয়ার কার্ড রেন্ডার ফাংশন
     // =========================================================================
-    function renderTeamAndPlayers() {
-      const sliderBox = document.getElementById("teamBannerSlider");
-      const teamNameEl = document.getElementById("teamDisplayName");
-      const teamDescEl = document.getElementById("teamDisplayDesc");
-      const playersGrid = document.getElementById("playersGrid");
+function renderTeamAndPlayers() {
+  const sliderBox = document.getElementById("teamBannerSlider");
+  const teamNameEl = document.getElementById("teamDisplayName");
+  const teamDescEl = document.getElementById("teamDisplayDesc");
+  const playersGrid = document.getElementById("playersGrid");
 
-      if (teamNameEl) teamNameEl.textContent = ORG_CONFIG.teamName;
-      if (teamDescEl) teamDescEl.textContent = ORG_CONFIG.teamDescription;
+  if (teamNameEl) teamNameEl.textContent = ORG_CONFIG.teamName;
+  if (teamDescEl) teamDescEl.textContent = ORG_CONFIG.teamDescription;
 
-      const bannerList =
-        Array.isArray(ORG_CONFIG.teamBannerImages) && ORG_CONFIG.teamBannerImages.length > 0
-          ? ORG_CONFIG.teamBannerImages
-          : (ORG_CONFIG.teamBannerImage ? [ORG_CONFIG.teamBannerImage] : []);
+  const bannerList =
+    Array.isArray(ORG_CONFIG.teamBannerImages) && ORG_CONFIG.teamBannerImages.length > 0
+      ? ORG_CONFIG.teamBannerImages
+      : (ORG_CONFIG.teamBannerImage ? [ORG_CONFIG.teamBannerImage] : []);
 
-      if (sliderBox && bannerList.length > 0) {
-        sliderBox.innerHTML = "";
-        let activeIndex = 0;
+  if (sliderBox && bannerList.length > 0) {
+    sliderBox.innerHTML = "";
+    let activeIndex = 0;
 
-        const slideElements = bannerList.map((imgUrl, idx) => {
-          const slideImg = document.createElement("img");
-          slideImg.src = imgUrl;
-          slideImg.alt = ORG_CONFIG.teamName + " Banner " + (idx + 1);
-          slideImg.className = idx === 0 ? "team-banner-slide is-active" : "team-banner-slide";
-          sliderBox.appendChild(slideImg);
-          return slideImg;
-        });
+    const slideElements = bannerList.map((imgUrl, idx) => {
+      const slideImg = document.createElement("img");
+      slideImg.src = imgUrl;
+      slideImg.alt = ORG_CONFIG.teamName + " Banner " + (idx + 1);
+      slideImg.className = idx === 0 ? "team-banner-slide is-active" : "team-banner-slide";
+      sliderBox.appendChild(slideImg);
+      return slideImg;
+    });
 
-        if (slideElements.length > 1) {
-          const intervalTime = Number(ORG_CONFIG.bannerSlideIntervalMs) || 3000;
-          setInterval(() => {
-            slideElements[activeIndex].classList.remove("is-active");
-            activeIndex = (activeIndex + 1) % slideElements.length;
-            slideElements[activeIndex].classList.add("is-active");
-          }, intervalTime);
-        }
-      }
-
-      if (!playersGrid) return;
-      playersGrid.innerHTML = "";
-
-      ORG_CONFIG.players.forEach((player) => {
-        const card = document.createElement("article");
-        card.className = "player-row-card";
-
-        const photo = document.createElement("img");
-        photo.src = player.photo;
-        photo.alt = player.name;
-        photo.className = "player-thumb";
-
-        const detailsWrap = document.createElement("div");
-        detailsWrap.className = "player-details";
-
-        const metaTop = document.createElement("div");
-        metaTop.className = "player-meta-top";
-
-        const roleBadge = document.createElement("span");
-        roleBadge.className = "player-role-badge";
-        roleBadge.textContent = player.role;
-
-        const regionTag = document.createElement("span");
-        regionTag.className = "player-region-tag";
-        regionTag.textContent = player.region;
-
-        metaTop.appendChild(roleBadge);
-        metaTop.appendChild(regionTag);
-
-        const nameEl = document.createElement("h3");
-        nameEl.className = "player-name";
-        nameEl.textContent = player.name;
-
-        const infoEl = document.createElement("p");
-        infoEl.className = "player-info";
-        infoEl.textContent = player.details;
-
-        detailsWrap.appendChild(metaTop);
-        detailsWrap.appendChild(nameEl);
-        detailsWrap.appendChild(infoEl);
-
-        card.appendChild(photo);
-        card.appendChild(detailsWrap);
-        playersGrid.appendChild(card);
-      });
+    if (slideElements.length > 1) {
+      const intervalTime = Number(ORG_CONFIG.bannerSlideIntervalMs) || 3000;
+      setInterval(() => {
+        slideElements[activeIndex].classList.remove("is-active");
+        activeIndex = (activeIndex + 1) % slideElements.length;
+        slideElements[activeIndex].classList.add("is-active");
+      }, intervalTime);
     }
+  }
 
+  if (!playersGrid) return;
+  playersGrid.innerHTML = "";
+
+  ORG_CONFIG.players.forEach((player) => {
+    const card = document.createElement("article");
+    card.className = "player-row-card";
+
+    const photo = document.createElement("img");
+    photo.src = player.photo;
+    photo.alt = player.name;
+    photo.className = "player-thumb";
+
+    const detailsWrap = document.createElement("div");
+    detailsWrap.className = "player-details";
+
+    const metaTop = document.createElement("div");
+    metaTop.className = "player-meta-top";
+
+    const roleBadge = document.createElement("span");
+    roleBadge.className = "player-role-badge";
+    roleBadge.textContent = player.role;
+
+    const regionTag = document.createElement("span");
+    regionTag.className = "player-region-tag";
+    regionTag.textContent = player.region;
+
+    metaTop.appendChild(roleBadge);
+    metaTop.appendChild(regionTag);
+
+    const nameEl = document.createElement("h3");
+    nameEl.className = "player-name";
+    nameEl.textContent = player.name;
+
+    const infoEl = document.createElement("p");
+    infoEl.className = "player-info";
+    infoEl.textContent = player.details;
+
+    detailsWrap.appendChild(metaTop);
+    detailsWrap.appendChild(nameEl);
+    detailsWrap.appendChild(infoEl);
+
+    card.appendChild(photo);
+    card.appendChild(detailsWrap);
+    playersGrid.appendChild(card);
+  });
+}
     // =========================================================================
     // সোশ্যাল মিডিয়া লোগো রেন্ডার করার ফাংশন (শুধু লোগো থাকবে, কোনো লেখা নয়)
     // =========================================================================
